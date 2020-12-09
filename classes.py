@@ -31,3 +31,5 @@ for person in people:
     print(f'added {person} successfully')
   else:
     print(f'not available seats for {person}')
+
+print('git teste')
