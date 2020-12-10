@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Search</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .nav {
+            background-color: rgb(3, 53, 104);
+        }
+        .my-row {
+            border: 0px solid black;
+        }
+        .row-first {
+            height: 50px;
+        }
+    </style>
+
+    <ul class="nav justify-content-end">
+        <li class="nav-item my-nav">
+          <a class="nav-link active" href="index.html">Search</a>
+        </li>
+        <li class="nav-item my-nav">
+          <a class="nav-link" href="advanced.html">Advanced Search</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="image.html">Images</a>
+      </ul>
+
+    </nav>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='row row-first'>
+
+            </div>
+            <div class='row justify-content-center'>
+                <image src='https://www.debatejuridico.com.br/wp-content/uploads/2020/10/ot-contrib-google.png'>
+                </image>
+            </div>
+            <div class='row my-row justify-content-center'>
+                <form action="https://google.com/search">
+                    <div class="form-group">
+                        <input type="text" name='q'class="form-control">
+                    </div> 
+            </div>  
+                <div class='row my-row justify-content-center'>
+                    <button type="submit" class="btn btn-primary" data-toggle="button" aria-pressed="false">
+                        Search
+                    </button>
+                </div>            
+                </form>                
+        </div>
+
+    </body>
+</html>
