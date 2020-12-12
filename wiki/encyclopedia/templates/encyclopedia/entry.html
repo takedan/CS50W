@@ -10,5 +10,9 @@
     <ul>
         {{ content|safe }}
     </ul>
-
+    <form action="{% url 'encyclopedia:edit_page' %}" method='POST'> 
+        {% csrf_token %}
+        <input type="hidden" name="name" value={{name}}>
+        <input type="submit" value="editar">
+    </form>
 {% endblock %}
