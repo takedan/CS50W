@@ -1,1 +1,1 @@
-E o gotinho
+E o goto
