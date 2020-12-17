@@ -1,0 +1,59 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+{% if message %}
+<div class="alert alert-primary" role="alert">
+  {{ message }}
+</div>
+{% endif %}
+
+<h2>Listing: {{ item.title }}</h2>
+
+
+    <div class="row">
+      <div class="col">
+        <img src="{{ item.imageurl }}" width="300px" height="300px">
+      </div>
+    </div>
+    <div class="row" style="height:30px">
+      <div class="col" style="font-size: 15px">
+        {{ item.description }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <h4><b>${{ item.price }} </b></h4>
+      </div>
+    </div>     
+
+
+    <div class=row" style="font-size:13px">
+      {{ nbids }} bid(s) so far. {% if bidatual %} Your bid is the current bid.{% endif %}
+    </div>
+
+  {% if user.is_authenticated %}
+
+  <div class="row" style="height: 20px"></div>
+
+  <form action="{% url 'placebid' %}" method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <div class="row" style="height: 10px;"></div>
+    <button type="submit" class="btn btn-primary">Place Bid</button>
+    <input type="hidden" value="{{ item.id }}" name='item'>
+  </form>
+  
+  {% endif %}
+
+  <div class="row" style="height: 40px"></div>
+
+  <h4>Details</h4>
+  <ul style="font-size: 15px">
+    <li>Listed by: {{ item.usuario }}</li>
+    <li>Category: {{ item.category }}</li>
+    <li>Date Created: {{ item.datecreation }}</li>
+  </ul>
+
+{% endblock %}

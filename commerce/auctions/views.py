@@ -1,14 +1,26 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
+from django import forms
 
-from .models import User
+from .models import User, ItemCategory, CreateList, BidItem
 
+class NewItemForm(forms.ModelForm):
+    class Meta:
+        model = CreateList
+        fields = ('title', 'description', 'price', 'imageurl', 'category')
+
+class NewBidForm(forms.ModelForm):
+    class Meta:
+        model = BidItem
+        fields = ('bid',)
 
 def index(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/index.html", {
+        "items": CreateList.objects.all()
+    })
 
 
 def login_view(request):
@@ -61,3 +73,58 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+def createlist(request):
+    if request.method == "POST":
+        form = NewItemForm(request.POST)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.usuario = request.user
+            item.save()
+            return redirect("index")
+    return render(request, "auctions/createlist.html", {
+        "form": NewItemForm()
+    })
+
+def item(request, itemid, message=""):
+
+    #inicializa
+
+    i = CreateList.objects.get(id=itemid)
+    bids = BidItem.objects.filter(item=i)
+    n_bids = len(bids)
+    max = bids.order_by('-bid')[0]
+
+    #verifica se o bid atual e o seu
+    if max.usuario == request.user:
+        bid_atual = True
+    else:
+        bid_atual = False
+
+    #ajusta preco p/ max bid
+    i.price = max.bid
+
+    return render(request, "auctions/item.html", {
+        "item": i,
+        "form": NewBidForm(initial={'bid': max.bid}),
+        "nbids": n_bids,
+        "bidatual": bid_atual,
+        "message": message
+    })
+
+def placebid(request):
+    if request.method == "POST":
+        form = NewBidForm(request.POST)
+        if form.is_valid():
+            max = BidItem.objects.filter(item=CreateList(id=request.POST['item'])).order_by('-bid')[0]
+            bid = form.save(commit=False)
+            if bid.bid > max.bid:
+                #save bid
+                bid.usuario = request.user
+                bid.item = CreateList(id=request.POST['item'])
+                bid.save()
+                return HttpResponseRedirect(reverse("item", kwargs={'itemid': request.POST['item']}))
+            else:
+                return HttpResponse('Seu bid nao foi aceito pois e menor que o valor atual')
+        else:
+            return HttpResponse('formulario invalido')
