@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django import forms
 
-from .models import User, ItemCategory, CreateList, BidItem
+from .models import User, ItemCategory, CreateList, BidItem, ItemActive, Watchlist
 
 class NewItemForm(forms.ModelForm):
     class Meta:
@@ -16,6 +16,7 @@ class NewBidForm(forms.ModelForm):
     class Meta:
         model = BidItem
         fields = ('bid',)
+
 
 def index(request):
     return render(request, "auctions/index.html", {
@@ -89,36 +90,70 @@ def createlist(request):
 def item(request, itemid, message=""):
 
     #inicializa
-
     i = CreateList.objects.get(id=itemid)
     bids = BidItem.objects.filter(item=i)
+    itemactive = ItemActive.objects.get(item=CreateList(id=itemid)).active
+
+    #verifica se esta na watchlist
+    watch = Watchlist.objects.get(user=request.user)
+    for it in watch.items.all():
+        if it.title == i.title:
+            watching = True
+            break
+        else:
+            watching = False
+
     n_bids = len(bids)
-    max = bids.order_by('-bid')[0]
-
-    #verifica se o bid atual e o seu
-    if max.usuario == request.user:
-        bid_atual = True
+    if n_bids>0:
+        max = bids.order_by('-bid')[0]
+        #verifica se o bid atual e o seu
+        if max.usuario == request.user:
+            bid_atual = True
+        else:
+            bid_atual = False
+        #ajusta preco p/ max bid
+        maximo= max.bid    
+        #verifica quem ganhou
+        if itemactive == True:
+            winner = ""
+        else:
+            winner = max.usuario               
     else:
+        maximo = i.price
         bid_atual = False
+        winner=""
+        message="Nao há bids nesse item"
 
-    #ajusta preco p/ max bid
-    i.price = max.bid
+    #verifica se vc e o dono do item
+    if request.user == i.usuario:
+        owner = True
+    else:
+        owner = False
 
     return render(request, "auctions/item.html", {
         "item": i,
-        "form": NewBidForm(initial={'bid': max.bid}),
+        "form": NewBidForm(initial={'bid': maximo}),
         "nbids": n_bids,
         "bidatual": bid_atual,
-        "message": message
+        "message": message,
+        "owner": owner,
+        "itemactive": itemactive,
+        "winner": winner,
+        "watching": watching
     })
 
 def placebid(request):
     if request.method == "POST":
         form = NewBidForm(request.POST)
         if form.is_valid():
-            max = BidItem.objects.filter(item=CreateList(id=request.POST['item'])).order_by('-bid')[0]
+            n_bids = len(BidItem.objects.filter(item=CreateList(id=request.POST['item'])))
+            if n_bids>0: 
+                max = BidItem.objects.filter(item=CreateList(id=request.POST['item'])).order_by('-bid')[0]
+                maximo = max.bid
+            else:
+                maximo = 0
             bid = form.save(commit=False)
-            if bid.bid > max.bid:
+            if bid.bid > maximo:
                 #save bid
                 bid.usuario = request.user
                 bid.item = CreateList(id=request.POST['item'])
@@ -128,3 +163,36 @@ def placebid(request):
                 return HttpResponse('Seu bid nao foi aceito pois e menor que o valor atual')
         else:
             return HttpResponse('formulario invalido')
+
+
+def closeitem(request):
+    f = ItemActive()
+    f.item = CreateList(id=request.POST['item'])
+    f.active = False
+    f.save()
+    return HttpResponseRedirect(reverse("item", kwargs={'itemid': request.POST['item']}))
+
+def listbids(request):
+    itemid = request.POST['item']
+    bids = BidItem.objects.filter(item=CreateList(id=itemid))
+    return render(request, "auctions/listbids.html", {
+        "bids": bids
+    })
+
+def watchlist(request):
+    if request.method == "POST":
+        f = Watchlist.objects.get(user=request.user)
+        f.items.add(CreateList.objects.get(id=request.POST['item']))
+    f = Watchlist(user=request.user)
+    return render(request, "auctions/watchlist.html", {
+        "items": f.items.all()
+    })
+
+def delwatchlist(request):
+    if request.method == "POST":
+        f = Watchlist.objects.get(user=request.user)
+        f.items.remove(CreateList.objects.get(id=request.POST['item']))
+    f = Watchlist(user=request.user)
+    return render(request, "auctions/watchlist.html", {
+        "items": f.items.all()
+    })    

@@ -2,14 +2,21 @@
 
 {% block body %}
 
+
+<h2>Listing: {{ item.title }}</h2>
+
 {% if message %}
 <div class="alert alert-primary" role="alert">
   {{ message }}
 </div>
 {% endif %}
 
-<h2>Listing: {{ item.title }}</h2>
-
+{% if not itemactive %}
+  <div class="alert alert-danger" role="alert">Item Inativo</div>
+  {% if winner %}
+  <div class="alert alert-info" role="alert">O vencedor do leilao foi: {{ winner }}</div>  
+  {% endif %}
+{% endif %}
 
     <div class="row">
       <div class="col">
@@ -24,26 +31,61 @@
 
     <div class="row">
       <div class="col">
-        <h4><b>${{ item.price }} </b></h4>
+        <h4><b>${{ form.bid.value }} </b></h4>
       </div>
     </div>     
 
 
     <div class=row" style="font-size:13px">
-      {{ nbids }} bid(s) so far. {% if bidatual %} Your bid is the current bid.{% endif %}
+      <form action="{% url 'listbids' %}" method="POST">
+        {% csrf_token %}
+      <input type='hidden' value='{{ item.id }}' name='item'>
+      <button type='submit'>{{ nbids }} bid(s) so far. {% if bidatual %} Your bid is the current bid. {% endif %}</button>
+     </form> 
     </div>
 
   {% if user.is_authenticated %}
 
   <div class="row" style="height: 20px"></div>
 
-  <form action="{% url 'placebid' %}" method="POST">
-    {% csrf_token %}
-    {{ form }}
-    <div class="row" style="height: 10px;"></div>
-    <button type="submit" class="btn btn-primary">Place Bid</button>
-    <input type="hidden" value="{{ item.id }}" name='item'>
-  </form>
+    <div class="col">
+      {% if owner %}
+        <form action="{% url 'closeitem' %}" method="POST">
+          {% csrf_token %}
+
+          <button type="submit" class="btn btn-secondary">Close Auction</button>
+          <input type="hidden" value="{{ item.id }}" name='item'>
+        </form>    
+      {% else %}
+        <form action="{% url 'placebid' %}" method="POST">
+          {% csrf_token %}
+          {{ form }}
+          <div class="row" style="height: 10px;"></div>
+          <button type="submit" class="btn btn-primary">Place Bid</button>
+          <input type="hidden" value="{{ item.id }}" name='item'>
+        </form>
+      {% endif %}
+
+      {% if not watching %}
+        <form action="{% url 'watchlist' %}" method="POST">
+          {% csrf_token %}
+    
+          <button type="submit" class="btn btn-dark">Watchlist</button>
+          <input type="hidden" value="{{ item.id }}" name='item'>
+        </form>
+      {% else %}
+        <form action="{% url 'delwatchlist' %}" method="POST">
+          {% csrf_token %}
+    
+          <button type="submit" class="btn btn-dark">Delete from Watchlist</button>
+          <input type="hidden" value="{{ item.id }}" name='item'>
+        </form>
+      {% endif %}
+  
+  </div>
+
+
+
   
   {% endif %}
 

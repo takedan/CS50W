@@ -32,3 +32,17 @@ class BidItem(models.Model):
 
     def __str__(self):
         return f"{self.usuario} BID {self.item}: ${self.bid}"
+
+class ItemActive(models.Model):
+    item = models.ForeignKey(CreateList, on_delete=models.CASCADE, primary_key=True)
+    active = models.BooleanField()
+
+    def __str__(self):
+        return f"{self.item}({self.active})"
+
+class Watchlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
+    items = models.ManyToManyField(CreateList)
+
+    def __str__(self):
+        return f"{self.user}"
