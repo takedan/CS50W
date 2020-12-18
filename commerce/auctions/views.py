@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -17,12 +18,26 @@ class NewBidForm(forms.ModelForm):
         model = BidItem
         fields = ('bid',)
 
+# class NewComment(forms.ModelForm):
+#     class Meta:
+#         model = Comments
+#         fields = ('text',)
 
 def index(request):
-    return render(request, "auctions/index.html", {
-        "items": CreateList.objects.all()
-    })
+    filt = request.GET.get('filtercategory', 'nofilter')
 
+    if filt == "nofilter":
+        return render(request, "auctions/index.html", {
+            "items": CreateList.objects.all(),
+            "categories": ItemCategory.objects.all()
+        })
+    else:
+        cat = ItemCategory.objects.get(Category=filt)
+        filtros = CreateList.objects.filter(category=cat.CategoryID)
+        return render(request, "auctions/index.html", {
+            "items": filtros,
+            "categories": ItemCategory.objects.all()
+        })
 
 def login_view(request):
     if request.method == "POST":
@@ -81,7 +96,10 @@ def createlist(request):
         if form.is_valid():
             item = form.save(commit=False)
             item.usuario = request.user
+            item.bid=0
             item.save()
+            f = ItemActive.objects.create(item=CreateList.objects.get(title=item.title), active=True)
+            f.save()
             return redirect("index")
     return render(request, "auctions/createlist.html", {
         "form": NewItemForm()
@@ -94,14 +112,22 @@ def item(request, itemid, message=""):
     bids = BidItem.objects.filter(item=i)
     itemactive = ItemActive.objects.get(item=CreateList(id=itemid)).active
 
+    #pega comentarios
+    # cs = Comments.objects.filter(item=CreateList(id=itemid))
+    # if len(cs)<=0:
+    #     cs = "sem comentarios"
+
     #verifica se esta na watchlist
-    watch = Watchlist.objects.get(user=request.user)
-    for it in watch.items.all():
-        if it.title == i.title:
-            watching = True
-            break
-        else:
-            watching = False
+    if request.user.is_authenticated:
+        watch = Watchlist.objects.get(user=request.user)
+        for it in watch.items.all():
+            if it.title == i.title:
+                watching = True
+                break
+            else:
+                watching = False
+    else:
+        watching = False
 
     n_bids = len(bids)
     if n_bids>0:
@@ -139,9 +165,12 @@ def item(request, itemid, message=""):
         "owner": owner,
         "itemactive": itemactive,
         "winner": winner,
-        "watching": watching
+        "watching": watching,
+        # "cs": cs,
+        # "formcom": NewComment()
     })
 
+@login_required
 def placebid(request):
     if request.method == "POST":
         form = NewBidForm(request.POST)
@@ -158,13 +187,16 @@ def placebid(request):
                 bid.usuario = request.user
                 bid.item = CreateList(id=request.POST['item'])
                 bid.save()
+                a = CreateList.objects.get(id=request.POST['item'])
+                a.bid = bid.bid
+                a.save()
                 return HttpResponseRedirect(reverse("item", kwargs={'itemid': request.POST['item']}))
             else:
                 return HttpResponse('Seu bid nao foi aceito pois e menor que o valor atual')
         else:
             return HttpResponse('formulario invalido')
 
-
+@login_required
 def closeitem(request):
     f = ItemActive()
     f.item = CreateList(id=request.POST['item'])
@@ -179,6 +211,7 @@ def listbids(request):
         "bids": bids
     })
 
+@login_required
 def watchlist(request):
     if request.method == "POST":
         f = Watchlist.objects.get(user=request.user)
@@ -188,6 +221,7 @@ def watchlist(request):
         "items": f.items.all()
     })
 
+@login_required
 def delwatchlist(request):
     if request.method == "POST":
         f = Watchlist.objects.get(user=request.user)
@@ -195,4 +229,18 @@ def delwatchlist(request):
     f = Watchlist(user=request.user)
     return render(request, "auctions/watchlist.html", {
         "items": f.items.all()
-    })    
+    })
+
+@login_required
+def addcomment(request):
+    return HttpResponse(request.user)
+    # if request.method == "POST":
+    #     f = NewComment(request.POST)
+    #     if f.is_valid():
+    #         f.user = request.user
+    #         f.item = CreateList.objects.get(id=request.POST['item'])
+    #         return HttpResponse(request.user)
+    #         c = f.save(commit=False)
+    #         return HttpResponse(c)
+    #         f.save()
+    # return HttpResponseRedirect(reverse("item", kwargs={'itemid': request.POST['item']}))

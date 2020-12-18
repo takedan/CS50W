@@ -13,5 +13,6 @@ urlpatterns = [
     path('closeitem', views.closeitem, name="closeitem"),
     path('listbids', views.listbids, name='listbids'),
     path('watchlist', views.watchlist, name="watchlist"),
-    path('delwatchlist', views.delwatchlist, name="delwatchlist")    
+    path('delwatchlist', views.delwatchlist, name="delwatchlist"),
+    path('addcomment', views.addcomment, name='addcomment') 
 ]

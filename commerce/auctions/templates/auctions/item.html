@@ -98,4 +98,27 @@
     <li>Date Created: {{ item.datecreation }}</li>
   </ul>
 
+  <div class="row" style="height: 40px"></div>
+
+  <!-- <h4>Comments</h4>
+  <ul style="font-size: 15px">
+    {% for c in cs %}
+    <div class="row" style="border: 1px solid lightgray; background-color: rgb(196, 196, 196); height:30px">
+      <small>({{ c.date }}) &nbsp </small> {{ c.user }} comentou: 
+    </div>
+    <div class="row" style="height: 30px;">
+      {{ c.text }}
+    </div>    
+    {% endfor %}
+  </ul>
+
+  <div class="row" style="height: 40px"></div>
+
+  <form action="{% url 'addcomment' %}" method="POST">
+    {% csrf_token %}
+    {{ formcom }} 
+    <button type="submit" class="btn btn-light">Post Comment</button>
+    <input type='hidden' value='{{ item.id }}' name='item'>
+  </form> -->
+
 {% endblock %}

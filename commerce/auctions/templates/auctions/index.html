@@ -3,22 +3,37 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    <div class="container">
-        {% for item in items %}        
-        <div class="row" style="border: thin solid rgb(230, 228, 228)">
-            <div class="col-4">
-                <a href="{% url 'item' item.id %}">
-                    <img src="{{ item.imageurl }}" width="300px" height="300px">
-                </a>
-            </div>
+    <div class="row align-items-start">
+        <div class="col-2" style="background-color: lightgray;">
+            <h5 style="height: 20px">Filtros</h5>
+            <small><a href="{% url 'index' %}">Todos</a></small>
+            <br><b style="font-size: 14px">Categorias</b>
 
-            <div class="col-8">
-                <div class="row" style="height: 60px"></div>
-                <div class="row""><b>{{ item.title }}</b></div>
-                <div class="row"><b>Price: </b> ${{ item.price }}</div>
-                <div class="row" style="font-size: 13px; color:gray">{{ item.datecreation }}</div>
+            {% for category in categories %}
+                <br><small><a href="{% url 'index' %}?filtercategory={{ category }}">{{ category }}</a></small>
+            {% endfor %}
+        </div>  
+        <div class="col-10">
+            {% for item in items %} 
+        
+            <div class="row" style="border: thin solid rgb(230, 228, 228)">
+                <div class="col-4">
+                    <a href="{% url 'item' item.id %}">
+                        <img src="{{ item.imageurl }}" width="300px" height="300px">
+                    </a>
+                </div>
+                <div class="col-8">
+                    <div class="row" style="height: 60px"></div>
+                    <div class="row""><b>{{ item.title }}</b></div>
+                    <div class="row"><b>Starting Price: </b> ${{ item.price }}</div>
+                    <div class="row"><b>Actual Bid: </b> ${% if item.bid == 0 %}-{% else %} {{ item.bid }} {% endif %}</div>
+                    <div class="row" style="font-size: 13px; color:gray">{{ item.datecreation }}</div>
+                </div>
             </div>
-        </div>
-    {% endfor %}        
+            {% endfor %}  
+        </div> 
     </div>
+         
+      
+
 {% endblock %}
