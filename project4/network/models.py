@@ -16,16 +16,19 @@ class Post(models.Model):
         return f"{self.user} POST N {self.id}"
 
 class Follow(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="usuarios")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="usuarios_follow")
     list = models.ManyToManyField(User)
 
     def __str__(self):
-        return f"{seld.user}"
+        return f"{self.user}"
 
 class Comment(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="usuarios")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="usuarios_comment")
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="posts")
-    text = models.TextField(max_lenght=280)
+    text = models.TextField(max_length=280)
     likes = models.IntegerField()
-    datecreation = models.Datefield(auto_now=True)
+    datecreation = models.DateField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user}" 

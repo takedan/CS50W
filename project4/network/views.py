@@ -10,16 +10,21 @@ from .models import User, Post, Follow, Comment
 class NewPost(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('text')
+        fields = ('text',)
 
 class NewComment(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ('text')
+        fields = ('text',)
 
 def index(request):
     return render(request, "network/index.html")
 
+def username(request, username):
+    n_following = Follow.objects.get(user=User.objects.get(username=username)).list.all().count()
+    return render(request, "network/user.html", {
+        "following": n_following,
+    })
 
 def login_view(request):
     if request.method == "POST":
