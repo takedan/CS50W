@@ -6,7 +6,6 @@ class User(AbstractUser):
     pass
 
 class Post(models.Model):
-    id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="usuarios")
     text = models.TextField(max_length=280)
     likes = models.IntegerField()
@@ -23,7 +22,6 @@ class Follow(models.Model):
         return f"{self.user}"
 
 class Comment(models.Model):
-    id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="usuarios_comment")
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="posts")
     text = models.TextField(max_length=280)

@@ -3,7 +3,19 @@
 {% block body %}
     Usuario: {{ user }}
     <br>
-    Seguindo: {{ following }}
+    Seguindo: {{ n_following }}
+    {% for f in following %}
+        <li>
+        {{ f }}
+        </li>
+    {% endfor %}
+
     <br>
-    Seguidores {{ followed }}
+    Seguidores: {{ n_followers }}
+    {% for g in followers %}
+        <li>
+        {{ g }}
+        </li>
+    {% endfor %}
+
 {% endblock %}

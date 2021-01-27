@@ -21,9 +21,16 @@ def index(request):
     return render(request, "network/index.html")
 
 def username(request, username):
-    n_following = Follow.objects.get(user=User.objects.get(username=username)).list.all().count()
+    user = request.user
+    following = Follow.objects.get(user=User.objects.get(username=username)).list.all()
+    n_following = following.count()
+    followers = Follow.objects.filter(list=user.id)
+    n_followers = 0
     return render(request, "network/user.html", {
-        "following": n_following,
+        "n_following": n_following,
+        "following": following,
+        "followers": followers,
+        "n_followers": n_followers,
     })
 
 def login_view(request):
