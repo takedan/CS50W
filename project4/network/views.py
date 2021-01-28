@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
+from datetime import date
 
 from .models import User, Post, Follow, Comment
 
@@ -25,13 +26,38 @@ def username(request, username):
     following = Follow.objects.get(user=User.objects.get(username=username)).list.all()
     n_following = following.count()
     followers = Follow.objects.filter(list=user.id)
-    n_followers = 0
+    n_followers = followers.count()
     return render(request, "network/user.html", {
         "n_following": n_following,
         "following": following,
         "followers": followers,
         "n_followers": n_followers,
     })
+
+def allposts(request):
+    if request.method == "POST":
+        f = NewPost(request.POST)
+        if f.is_valid():
+            form = f.save(commit=False)
+            form.datecreation = date.today()
+            form.user_id = User.objects.get(username=request.user.username).id
+            form.save()
+            return render(request, "network/allposts.html", {
+                "message": "Postado!",
+                "classe": "alert alert-primary",
+                "form": NewPost()
+            })
+        else:
+            return render(request, "network/allposts.html", {
+                "message": "ERRO",
+                "classe": "alert alert-danger",
+                "form": NewPost()
+            })
+    else:
+        return render(request, "network/allposts.html", {
+            "form": NewPost()
+        })
+
 
 def login_view(request):
     if request.method == "POST":

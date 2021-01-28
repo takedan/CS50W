@@ -1,0 +1,28 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+
+    <!-- alert -->
+        {% if message != 0 %}
+            <div class="{{ classe|safe }}" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}    
+
+    <div class='container'>
+    
+        <!-- new post -->
+        <form action="{% url 'allposts' %}" method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <!-- <label for="exampleFormControlTextarea1" class="form-label">New Post</label>
+                <textarea class="form-control" name="text_newpost" rows="3"></textarea>
+                -->
+                {{ form }}
+            </div>            
+            <button type="submit" class="btn btn-primary">Post</button>
+        </form>
+
+    </div>
+
+{% endblock %}
