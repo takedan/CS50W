@@ -35,6 +35,7 @@ def username(request, username):
     })
 
 def allposts(request):
+    #create object using django forms
     if request.method == "POST":
         f = NewPost(request.POST)
         if f.is_valid():
@@ -57,6 +58,26 @@ def allposts(request):
         return render(request, "network/allposts.html", {
             "form": NewPost()
         })
+
+def allposts1(request):
+    #create object
+    if request.method == "POST":
+        form = Post(text = request.POST['text_newpost'], datecreation=date.today(), user_id  = User.objects.get(username=request.user.username).id)
+        try:
+            form.save()
+            return render(request, "network/allposts1.html", {
+                "message": "Postado!",
+                "classe": "alert alert-primary",
+                "form": NewPost()
+            })
+        except:
+            return render(request, "network/allposts1.html", {
+                "message": "ERRO",
+                "classe": "alert alert-danger",
+                "form": NewPost()
+            })            
+    else:
+        return render(request, "network/allposts1.html")
 
 
 def login_view(request):
