@@ -10,5 +10,6 @@ urlpatterns = [
     path("register", views.register, name="register"),
     path("allposts", views.allposts, name="allposts"),
     path("allposts1", views.allposts1, name="allposts1"),
+    path("fetch_posts", views.fetch_posts, name="fetch_posts"),
     path("<str:username>", views.username , name="user"),
 ]

@@ -1,10 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 from datetime import date
+from time import sleep
 
 from .models import User, Post, Follow, Comment
 
@@ -79,6 +80,26 @@ def allposts1(request):
     else:
         return render(request, "network/allposts1.html")
 
+def fetch_posts(request):
+    start = int(request.GET.get("start") or 0)
+    end = int(request.GET.get("end") or (start+ 9))
+
+    p = Post.objects.all().order_by('datecreation')
+
+    header = []
+    content = []
+    data = []
+    for i in p:
+        header.append(f"{i.user} {i.datecreation}")
+        content.append(f"{i.text}")
+        data.append(f"{i}")
+    sleep(1)
+
+    return JsonResponse({
+        "posts": data,
+        "h": header,
+        "c": content,
+    })    
 
 def login_view(request):
     if request.method == "POST":

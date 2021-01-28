@@ -1,6 +1,17 @@
 {% extends "network/layout.html" %}
+{% load static %}
+
 
 {% block body %}
+<script src="{% static 'network/script.js' %}"></script>
+
+<style>
+
+    body {
+        padding-bottom: 50px;
+    }
+</style>
+
 
     <!-- alert -->
         {% if message != 0 %}
@@ -21,6 +32,11 @@
             <button type="submit" class="btn btn-primary">Post</button>
         </form>
 
+
+        <!-- all posts -->
+        <div id="posts">
+                
+        </div>
     </div>
 
 {% endblock %}

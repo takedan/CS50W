@@ -12,7 +12,7 @@ class Post(models.Model):
     datecreation = models.DateField(auto_now=True)    
 
     def __str__(self):
-        return f"{self.user} POST N {self.id}"
+        return f"{self.user}_{self.id}/"
 
 class Follow(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="usuarios_follow")
