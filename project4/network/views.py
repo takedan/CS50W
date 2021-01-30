@@ -111,7 +111,10 @@ def add_like(request):
         p = Post.objects.get(id=post_id)
         p.likes = p.likes+1
         p.save()
-        return HttpResponse(p.likes)
+        return JsonResponse({
+            "n_likes": p.likes,
+        })
+        #return HttpResponse(p.likes)
     else:
         return HttpResponse("post")
 

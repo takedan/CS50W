@@ -42,12 +42,18 @@ function add_post(h, c, p, l) {
 
   const blike = document.createElement('button');
   blike.className = "btn btn-primary";
+  let id = "blike" + p
+  blike.id = id
   blike.append(l + " likes");
   blike.addEventListener("click",
     function() {
       let post_id = p
-      fetch(`/add_like?post_id=${post_id}`);
-      window.location.reload()
+      fetch(`/add_like?post_id=${post_id}`)
+      .then(response => response.json())
+      .then(data => {
+        document.querySelector("#" + blike.id).innerHTML = data.n_likes + " likes"
+      })
+
   })
 
   const header = document.createElement('h6');
