@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from datetime import date
+from datetime import datetime
 from time import sleep
 
 from .models import User, Post, Follow, Comment
@@ -41,7 +41,7 @@ def allposts(request):
         f = NewPost(request.POST)
         if f.is_valid():
             form = f.save(commit=False)
-            form.datecreation = date.today()
+            form.datecreation = datetime.now()
             form.user_id = User.objects.get(username=request.user.username).id
             form.save()
             return render(request, "network/allposts.html", {
@@ -63,7 +63,7 @@ def allposts(request):
 def allposts1(request):
     #create object
     if request.method == "POST":
-        form = Post(text = request.POST['text_newpost'], datecreation=date.today(), user_id  = User.objects.get(username=request.user.username).id)
+        form = Post(text = request.POST['text_newpost'], datecreation=datetime.now(), user_id  = User.objects.get(username=request.user.username).id)
         try:
             form.save()
             return render(request, "network/allposts1.html", {
@@ -84,22 +84,36 @@ def fetch_posts(request):
     start = int(request.GET.get("start") or 0)
     end = int(request.GET.get("end") or (start+ 9))
 
-    p = Post.objects.all().order_by('datecreation')
+    p = Post.objects.all().order_by('-datecreation')
 
     header = []
     content = []
     data = []
+    likes = []
     for i in p:
-        header.append(f"{i.user} {i.datecreation}")
+        dt_format = i.datecreation.strftime("%d/%m/%Y %H:%M:%S")
+        header.append(f"{i.user} {dt_format}")
         content.append(f"{i.text}")
-        data.append(f"{i}")
+        data.append(f"{i.id}")
+        likes.append(f"{i.likes}")
     sleep(1)
 
     return JsonResponse({
         "posts": data,
         "h": header,
         "c": content,
+        "l": likes,
     })    
+
+def add_like(request):
+    if request.method == "GET":
+        post_id = request.GET.get('post_id')
+        p = Post.objects.get(id=post_id)
+        p.likes = p.likes+1
+        p.save()
+        return HttpResponse(p.likes)
+    else:
+        return HttpResponse("post")
 
 def login_view(request):
     if request.method == "POST":

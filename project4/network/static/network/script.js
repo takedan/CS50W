@@ -29,21 +29,32 @@ function load() {
     .then(data => {
       let n = Object.keys(data.c).length 
       for (var i=0; i<=n; i++) {
-        add_post1(data.h[i], data.c[i]);
+        add_post(data.h[i], data.c[i], data.posts[i], data.l[i]);
       }
     })
 };
 
-function add_post1(h, c) {
+function add_post(h, c, p, l) {
   // Create new post
   const post = document.createElement('div');
   post.className = 'card-body';
   post.append(c);
 
+  const blike = document.createElement('button');
+  blike.className = "btn btn-primary";
+  blike.append(l + " likes");
+  blike.addEventListener("click",
+    function() {
+      let post_id = p
+      fetch(`/add_like?post_id=${post_id}`);
+      window.location.reload()
+  })
+
   const header = document.createElement('h6');
   header.className = "card-header";
   header.append(h);
-  post.insertBefore(header, post.childNodes[0])
+  header.appendChild(blike)
+  post.insertBefore(header, post.childNodes[0]);
 
   // Add post to DOM
   document.querySelector('#posts').append(post);
